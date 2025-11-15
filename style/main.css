@@ -1,0 +1,61 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "BarberChop,Monserrat,sans-serif";
+}
+@font-face {
+    font-family: 'BaberChop';
+    src: url('assets/BarberChop.otf') format('truetype');
+}
+
+/* totals area styling */
+.totals {
+    display: flex;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    align-items: center;
+}
+.totals-item {
+    background: #f2f2f2;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+}
+
+table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0.5rem;
+        font-size: 0.95rem;
+}
+table th, table td {
+        border: 1px solid #ddd;
+        padding: 0.5rem;
+}
+table th { background:#eee; }
+
+/* wrapper to allow horizontal scroll on small screens */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* generic button spacing and touch targets */
+.add-btn, .add-kelas-btn, .delete-kelas-btn, .download-csv-btn {
+    margin-left: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+}
+
+/* responsive adjustments for small screens */
+@media (max-width: 600px) {
+    :root { font-size: 14px; }
+    .totals { gap: 0.5rem; }
+    table { font-size: 0.9rem; }
+    .totals-item { padding: 0.4rem 0.6rem; }
+    .add-btn, .add-kelas-btn, .delete-kelas-btn, .download-csv-btn {
+        padding: 0.6rem 0.9rem;
+        font-size: 1rem;
+        margin-top: 0.4rem;
+    }
+}
