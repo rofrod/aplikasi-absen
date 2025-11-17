@@ -9,11 +9,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!kelasListEl) return;
     kelasListEl.innerHTML = '';
 
-    const defaultClasses = [
-      { name: 'XII-TKJ-1', file: 'data/12tkj1.json' },
-      { name: 'XII-TKJ-2', file: 'data/12tkj2.json' },
-      { name: 'XII-TKJ-3', file: 'data/12tkj3.json' }
-    ];
+    // Default classes removed — only custom classes will be shown
+    const defaultClasses = [];
 
     // helper to append an li
     function appendLi(cls, isCustom) {
@@ -111,23 +108,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const file = prompt('Path file JSON untuk kelas ini (opsional). Contoh: data/12tkj4.json\nKosongkan jika tidak ada file.');
         const trimmedName = String(nama).trim();
         
-        // cek duplikat di kelas default
-        const defaultClasses = [
-          'XII-TKJ-1',
-          'XII-TKJ-2',
-          'XII-TKJ-3'
-        ];
-        if (defaultClasses.some(c => String(c || '').trim().toLowerCase() === trimmedName.toLowerCase())) {
-          alert('Kelas dengan nama tersebut sudah ada (kelas default).');
-          return;
-        }
-        
-        // cek duplikat di kelas custom
+        // tidak ada kelas default — hanya periksa duplikat pada kelas custom
         const existing = loadCustomClasses();
         if (existing.some(c => String(c.name || '').trim().toLowerCase() === trimmedName.toLowerCase())) {
           alert('Kelas dengan nama tersebut sudah ada.');
           return;
         }
+        
+        // cek duplikat di kelas custom
+        // existing already validated above
         const entry = { name: trimmedName };
         let filePath = file && String(file).trim() ? String(file).trim() : null;
 
