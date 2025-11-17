@@ -50,42 +50,39 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
   }
+  const requestUrl = new URL(event.request.url);
 
+  // Network-first for navigations, main app shell and critical assets
+  const isNavigation = event.request.mode === 'navigate' || requestUrl.pathname === '/' || requestUrl.pathname.endsWith('/index.html');
+  const isCriticalAsset = requestUrl.pathname.endsWith('app.js') || requestUrl.pathname.endsWith('main.css') || requestUrl.pathname.endsWith('navbar.css');
+
+  if (isNavigation || isCriticalAsset) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match('/index.html') || new Response('Offline - Resource not available', { status: 503 })))
+    );
+    return;
+  }
+
+  // Default: cache-first for other static resources
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Return cached response if available
-      if (response) {
-        return response;
-      }
-      // Try network request
+      if (response) return response;
       return fetch(event.request)
-        .then((response) => {
-          // Clone the response
-          if (!response || response.status !== 200 || response.type === 'error') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          // Cache successful responses for next use
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
+        .then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) return networkResponse;
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return networkResponse;
         })
-        .catch(() => {
-          // Network request failed, serve offline fallback if available
-          return caches.match(event.request)
-            .then((response) => {
-              if (response) return response;
-              // Optional: return a generic offline page or error
-              return new Response('Offline - Resource not available', {
-                status: 503,
-                statusText: 'Service Unavailable',
-                headers: new Headers({
-                  'Content-Type': 'text/plain'
-                })
-              });
-            });
-        });
+        .catch(() => new Response('Offline - Resource not available', { status: 503 }));
     })
   );
 });

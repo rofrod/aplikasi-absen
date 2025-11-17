@@ -16,32 +16,23 @@
 </head>
 <body>
     <header class="navbar">
-        <!-- Navbar Kelas -->
         <nav>
-            <div class="kelas">Kelas:</div>
-            <div class="dropdown">
-                <button class="drop-btn">Kelas</button>
-                <div class="dropdown-content">
-                    <a href="#" data-file="data/12tkj1.json" data-custom="1">XII-TKJ-1</a>
-                    <a href="#" data-file="data/12tkj2.json" data-custom="1">XII-TKJ-2</a>
-                    <a href="#" data-file="data/12tkj3.json" data-custom="1">XII-TKJ-3</a>
-                    <!-- custom classes akan disisipkan di sini oleh JS -->
-                </div>
+          <div class="kelas">Kelas:</div>
+          <div class="kelas-wrapper">
+            <div class="kelas-list-container">
+              <ul id="kelas-list" class="kelas-list">
+                <!-- daftar kelas (li) bakal dihasilkan oleh JS -->
+              </ul>
             </div>
 
-            <!-- tombol untuk menambahkan siswa pada kelas yang sedang aktif -->
-            <button id="add-siswa-btn" class="add-btn" title="Tambah Siswa">Tambah Siswa</button>
-
-            <!-- tombol untuk menambahkan kelas -->
-            <button id="add-kelas-btn" class="add-kelas-btn" title="Tambah Kelas">Tambah Kelas</button>
-
-            <!-- tombol untuk menghapus kelas (aktif hanya untuk kelas custom) -->
-            <button id="delete-kelas-btn" class="delete-kelas-btn" title="Hapus Kelas" disabled>Hapus Kelas</button>
-
-            <!-- tombol untuk mendownload data absensi sebagai spreadsheet (CSV) -->
-            <button id="download-csv-btn" class="download-csv-btn" title="Download Absensi">Download Absensi</button>
-
-            <!-- Tombol izin file dihapus; fitur akses file lokal tidak digunakan -->
+            <div class="kelas-tools-right">
+              <button id="add-siswa-btn" class="add-btn" title="Tambah Siswa">Tambah Siswa</button>
+              <button id="add-kelas-btn" class="add-kelas-btn" title="Tambah Kelas">Tambah Kelas</button>
+              <button id="delete-kelas-btn" class="delete-kelas-btn" title="Hapus Kelas" disabled>Hapus Kelas</button>
+              <button id="download-csv-btn" class="download-csv-btn" title="Download Absensi">Download Absensi</button>
+            </div>
+          </div>
+          <!-- Tombol izin file dihapus; fitur akses file lokal tidak digunakan -->
         </nav>
     </header>
   <h2>Daftar Siswa</h2>
@@ -55,12 +46,11 @@
         <th>Sakit</th>
         <th>Izin</th>
         <th>Alasan</th>
-        <!-- NEW: kolom aksi untuk tombol hapus -->
-        <th>Aksi</th>
+        <th>Aksi</th> <!--  tombol hapus -->
       </tr>
     </thead>
     <tbody id="siswa-tbody">
-      <!-- rows akan diisi oleh JS -->
+      <!-- rows berasal dari JS -->
     </tbody>
   </table>
   </div>

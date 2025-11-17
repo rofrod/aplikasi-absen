@@ -1,75 +1,69 @@
 // Dropdown toggle and selection script
 document.addEventListener('DOMContentLoaded', function () {
-    const dropdown = document.querySelector('.dropdown');
-    const btn = dropdown.querySelector('.drop-btn');
-    const menu = dropdown.querySelector('.dropdown-content');
-    const kelasLabel = document.querySelector('.kelas');
+  const kelasLabel = document.querySelector('.kelas');
+  const kelasListEl = document.getElementById('kelas-list');
+  const kelasWrapper = document.querySelector('.kelas-wrapper');
 
-    // Toggle dropdown when button clicked
-    btn.addEventListener('click', function (e) {
-        e.stopPropagation(); // prevent the click from bubbling to document
-        const isActive = dropdown.classList.toggle('active');
-        btn.classList.toggle('active', isActive);
-        // update aria-expanded for accessibility if present
-        if (btn.hasAttribute('aria-expanded')) {
-            btn.setAttribute('aria-expanded', isActive);
+  // Render class list (ul > li) using default + custom classes
+  function renderKelasList() {
+    if (!kelasListEl) return;
+    kelasListEl.innerHTML = '';
+
+    const defaultClasses = [
+      { name: 'XII-TKJ-1', file: 'data/12tkj1.json' },
+      { name: 'XII-TKJ-2', file: 'data/12tkj2.json' },
+      { name: 'XII-TKJ-3', file: 'data/12tkj3.json' }
+    ];
+
+    // helper to append an li
+    function appendLi(cls, isCustom) {
+      if (isClassHidden(cls.name)) return;
+      const li = document.createElement('li');
+      li.className = 'kelas-item';
+      li.textContent = cls.name;
+      if (cls.file) li.dataset.file = cls.file;
+      li.dataset.custom = isCustom ? '1' : '0';
+      li.tabIndex = 0;
+      li.addEventListener('click', () => selectClass(cls.name, cls.file || null, !!isCustom, li));
+      li.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          selectClass(cls.name, cls.file || null, !!isCustom, li);
         }
-    });
+      });
+      kelasListEl.appendChild(li);
+    }
 
-    // Handle clicks on class items
-    menu.addEventListener('click', function (e) {
-        const target = e.target;
-        if (target.tagName.toLowerCase() === 'a') {
-            e.preventDefault();
-            const selected = target.textContent.trim();
-            // show selected class in the label (e.g. "Kelas: XII-TKJ-1")
-            if (kelasLabel) {
-                kelasLabel.textContent = 'Kelas: ' + selected;
-            }
-            // set currentClassEntry so delete button knows if this is custom
-            currentClassEntry = {
-              name: selected,
-              file: target.dataset.file || null,
-              custom: target.getAttribute('data-custom') === '1'
-            };
-            updateDeleteButtonState();
+    defaultClasses.forEach(c => appendLi(c, false));
 
-            // close dropdown and mark button inactive
-            dropdown.classList.remove('active');
-            btn.classList.remove('active');
-            if (btn.hasAttribute('aria-expanded')) btn.setAttribute('aria-expanded', 'false');
+    const custom = loadCustomClasses();
+    custom.forEach(c => appendLi(c, true));
+  }
 
-            // NEW: baca file dari atribut data-file jika tersedia, lalu load siswa
-            const filePath = target.dataset.file; // ex: "data/12tkj1.json"
-            if (filePath) {
-                loadSiswa(filePath).catch(err => console.error(err));
-            } else {
-                // fallback: panggil berdasarkan nama kelas jika tidak ada data-file
-                loadSiswa(selected).catch(err => console.error(err));
-            }
-        }
-    });
+  // select class when clicking list item
+  function selectClass(name, file, isCustom, liEl) {
+    if (kelasLabel) kelasLabel.textContent = 'Kelas: ' + name;
+    // clear active
+    document.querySelectorAll('#kelas-list .kelas-item').forEach(n => n.classList.remove('active'));
+    if (liEl) liEl.classList.add('active');
 
-    // Close when clicking outside
-    document.addEventListener('click', function () {
-        if (dropdown.classList.contains('active')) {
-            dropdown.classList.remove('active');
-            btn.classList.remove('active');
-            if (btn.hasAttribute('aria-expanded')) btn.setAttribute('aria-expanded', 'false');
-        }
-    });
+    currentClassEntry = { name: name, file: file || null, custom: !!isCustom };
+    updateDeleteButtonState();
 
-    // Close on Escape key
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && dropdown.classList.contains('active')) {
-            dropdown.classList.remove('active');
-            btn.classList.remove('active');
-            if (btn.hasAttribute('aria-expanded')) btn.setAttribute('aria-expanded', 'false');
-        }
-    });
+    // set currentClass for loadSiswa logic
+    currentClass = file || name;
+    if (file) loadSiswa(file).catch(err => console.error(err));
+    else loadSiswa(name).catch(err => console.error(err));
+  }
 
-    // NEW: load awal tanpa filter
-    loadSiswa().catch(err => console.error(err));
+  // expose renderer so other functions can call it
+  window.renderKelasList = renderKelasList;
+
+  // initial render
+  renderKelasList();
+
+  // NEW: load awal tanpa filter
+  loadSiswa().catch(err => console.error(err));
 
     // NEW: tombol tambah siswa
     const addBtn = document.getElementById('add-siswa-btn');
@@ -598,45 +592,10 @@ function saveCustomClasses(arr) {
 }
 
 function renderCustomClasses() {
-  const menu = document.querySelector('.dropdown .dropdown-content');
-  if (!menu) return;
-
-  // Bersihkan semua entri custom yang sebelumnya dirender untuk menghindari duplikat
-  Array.from(menu.querySelectorAll('a[data-custom="1"]')).forEach(el => el.remove());
-
-  // Tambahkan kembali kelas default (jika tidak disembunyikan)
-  const defaultClasses = [
-    { name: 'XII-TKJ-1', file: 'data/12tkj1.json' },
-    { name: 'XII-TKJ-2', file: 'data/12tkj2.json' },
-    { name: 'XII-TKJ-3', file: 'data/12tkj3.json' }
-  ];
-  defaultClasses.forEach(cls => {
-    if (!isClassHidden(cls.name)) {
-      const a = document.createElement('a');
-      a.href = '#';
-      a.textContent = cls.name;
-      a.dataset.file = cls.file;
-      a.setAttribute('data-custom', '1');
-      menu.appendChild(a);
-    }
-  });
-
-  // Render custom classes dari localStorage (hindari duplikat nama)
-  const list = loadCustomClasses();
-  list.forEach(c => {
-    if (!isClassHidden(c.name)) {
-      const nameNormalized = String(c.name || '').trim().toLowerCase();
-      const exists = Array.from(menu.querySelectorAll('a')).some(a => String(a.textContent || '').trim().toLowerCase() === nameNormalized);
-      if (!exists) {
-        const a = document.createElement('a');
-        a.href = '#';
-        a.textContent = c.name;
-        if (c.file) a.dataset.file = c.file;
-        a.setAttribute('data-custom', '1');
-        menu.appendChild(a);
-      }
-    }
-  });
+  // Re-render the kelas list (default + custom)
+  if (typeof window.renderKelasList === 'function') {
+    window.renderKelasList();
+  }
 }
 
 // NEW helpers: buat filename dari nama kelas dan simpan/unduh JSON
