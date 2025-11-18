@@ -201,15 +201,12 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    // NEW: tombol download CSV/Excel
+    // NEW: tombol unduh — hanya XLSX (opsi CSV dihilangkan)
     const downloadCsvBtn = document.getElementById('download-csv-btn');
     if (downloadCsvBtn) {
       downloadCsvBtn.addEventListener('click', function () {
         try {
-          // simple choice: OK => CSV, Cancel => XLSX
-          const asCsv = confirm('Unduh sebagai CSV? (OK = CSV, Cancel = XLSX)');
-          if (asCsv) exportAttendanceCSV();
-          else exportAttendanceXLSX();
+          exportAttendanceXLSX();
         } catch (err) {
           console.error('Gagal mengekspor data', err);
           alert('Gagal mengekspor data. Lihat console untuk detail.');
