@@ -198,7 +198,7 @@
 @media (min-width: 992px) {
     .navbar {
         /* membuat ruang dikanan jadi tools nggak overlap content */
-        padding-right: 220px;
+        padding-right: 0rem;
     }
 
     .kelas-tools-right {
